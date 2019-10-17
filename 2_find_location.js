@@ -15,7 +15,7 @@ fs.readdir(folder, function (err, files) {
 
     let buffer = '';
     let cnt = 0;
-
+    let users = [];
     console.log(`file start :${file}`);
     let datas = fs.readFileSync(`${folder}${file}`, 'utf8');
     
@@ -33,11 +33,14 @@ fs.readdir(folder, function (err, files) {
 
       if (logs[3] > minLatitude && logs[3] < maxLatitude && logs[4] > minLongitude && logs[4] < maxLongitude ) {
         cnt ++;
+        if (!users.includes(logs[2])) {
+          users.push(logs[2]);
+        }
         buffer += ds[i]+'\n';
       }
 
     }
-    fs.appendFileSync(`${outerFolder}/${locationName}/${date}_${first}_${cnt}.txt`, buffer);
+    fs.appendFileSync(`${outerFolder}/${locationName}/${date}_${first}_${cnt}_${users.length}.txt`, buffer);
 
     console.log(`file - ${file} complete`);
 
