@@ -15,7 +15,7 @@ const location = config.location;
 
 const fs = require('fs');
 const folder = './final'
-
+let num = 0;
 fs.readdir(`${folder}/${location}/`, function (err, files) {
   files.forEach(file => {
 
@@ -26,9 +26,12 @@ fs.readdir(`${folder}/${location}/`, function (err, files) {
       let cols = rows[j].split('\t');
       let timestamp = parseInt(cols[1]);
       let hour = new Date(timestamp).getHours();
+      
 
       for (let k = 0; k < timezones.length; k++) {
         if (timezones[k].includes(hour)) {
+          
+          // cols[0] = num ++; 
           fs.appendFileSync(`${location}_time_zone${k}.txt`, `${rows[j]}\n`);
         }
       }
