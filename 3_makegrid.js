@@ -1,8 +1,9 @@
 const fs = require('fs');
 const config = require('./config');
-const folder = './location/20190820_after/';
+const date = config.date;
+const folder = `./location`;
+const outerFolder = `./final`;
 const locationName = config.location
-const outerFolder = './final/20190820_after/';
 const minLatitude = config.minLatitude;
 const maxLatitude = config.maxLatitude;
 const minLongitude = config.minLongitude;
@@ -34,7 +35,6 @@ fs.readdir(`${folder}/${locationName}/`, function (err, files) {
       let lat_num = -1;
       let long_num = -1;
     
-      // console.log(`${rows[i]}||||${l1}\t${l2}`);
     
     
       lat_num = Math.floor(l1 / lat1);

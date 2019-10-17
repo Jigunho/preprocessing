@@ -1,7 +1,8 @@
 const fs = require('fs');
 const config = require('./config');
-const folder = './result/20190820_after/'; // 
-const outerFolder = './location/20190820_after/'
+const date = config.date;
+const folder = `./result/${date}_after/`;
+const outerFolder = `./location`;
 const locationName = config.location
 const minLatitude = config.minLatitude;
 const maxLatitude = config.maxLatitude;
@@ -36,7 +37,7 @@ fs.readdir(folder, function (err, files) {
       }
 
     }
-    fs.appendFileSync(`${outerFolder}/${locationName}/${first}_${cnt}.txt`, buffer);
+    fs.appendFileSync(`${outerFolder}/${locationName}/${date}_${first}_${cnt}.txt`, buffer);
 
     console.log(`file - ${file} complete`);
 

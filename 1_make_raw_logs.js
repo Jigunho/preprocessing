@@ -1,8 +1,9 @@
 const _ = require('lodash');
 const fs = require('fs');
 const config = require('./config');
-const folder = './logs/20190820_after/';
-const outFolder = './result/20190820_after/';
+const date = config.date;
+const folder = `./logs/${date}_after/`;
+const outFolder = `./result/${date}_after/`;
 
 fs.readdir(folder, function (err, files) {
   files.forEach(file => {
