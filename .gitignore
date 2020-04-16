@@ -1,5 +1,12 @@
 *.log
-*.txt
 node_modules/
 *.zip
 *.png
+*.csv
+final/*/
+2019.10.24/
+ddd/
+location/*/
+logs/
+makelog/
+result/*/*.txt

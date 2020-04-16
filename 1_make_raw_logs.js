@@ -4,98 +4,104 @@ const config = require('./config');
 const date = config.date;
 const folder = `./logs/${date}_after/`;
 const outFolder = `./result/${date}_after/`;
+const filename = `YugoNo8`
+const file1 = fs.readFileSync(`./data/OBN_GPS_ANDROID_${filename}.csv`).toString().split('\n');
+const file2 = fs.readFileSync(`./data/OBN_GPS_IOS_${filename}.csv`).toString().split('\n');
+// console.log(file1.length);
 
-fs.readdir(folder, function (err, files) {
-  files.forEach(file => {
 
-    var startTime = new Date().getTime();
+const exportfile = (file1, type) => {
+  let result = [];
+  let strs = ''
 
-    let cnt = 0;
+  for (let i = 0; i < file1.length; i++) {
     let latitude = [];
     let longitude = [];
     let velocity = [];
     let names = [];
 
-    console.log(`file start :${file}`);
-    let datas = fs.readFileSync(`${folder}${file}`, 'utf8');
-    let ds = datas.split('\n');
+    let logs = file1[i].split(',');
+    // device_id
+    // start_date
+    // start_time
+    // gps_count
+    // x1
+    // y1
+    // time1
+    // speed1
+    // xn 
+    // yn 
+    // timen
+    // speedn
+    let vehicle_id = logs[0];
+    let timestamp = parseInt(logs[6], 10);
+    let start_lon = parseInt(logs[4], 10);
+    let start_lat = parseInt(logs[5], 10)
+    // 첫번쨰꺼 저장
+    for (let j = 0; j < 20; j++) {
+      let t = timestamp + j * 3;
+      // let longitude = parseInt(logs[5 + 3 * j], 10) / 360000;
+      // let latitude = parseInt(logs[6 + 3 * j], 10) / 360000;
 
-    let result = [];
+      start_lon += parseInt(logs[8 + 4 * j], 10);
+      start_lat += parseInt(logs[9 + 4 * j], 10);
+      let speed = parseInt(logs[10 + 4 * j], 10);
 
-    console.log(ds.length);
-    // return;
-    for (let i = 0; i < ds.length; i++) {
-      let logs = ds[i].split(',');
-      if (logs.length !== 366) {
-        cnt++;
-        continue;
-      }
+      let obj = { timestamp: t, vehicle_id, longitude: start_lon / 360000, latitude: start_lat / 360000, speed, type }
+      let str = `${t}\t${vehicle_id}\t${start_lon / 360000}\t${start_lat / 360000}\t${speed}\n`;
+      strs += str;
 
-      // if ( i % 100 )
-      // 0 - device id 
-      // 1 - deviceid
-      // 2 - date
-      // 3 - time
-      // 5 + 3n - longitude
-      // 6 + 3n - latitude
-      // 7 + 3n - speed 
-      let final_logs = [];
-      let time = logs[3];
-      // console.log(`time: ${time}`);
-      let hour = time.substring(0, 2);
-      let min = time.substring(2, 4);
+      result.push(obj);
 
-      let date = logs[2];
-      let year = date.substring(0, 4);
-      let month = date.substring(4, 6);
-      let day = date.substring(6, 8);
 
-      for (let j = 0; j < 20; j++) {
-        let ts = `${year}-${month}-${day} ${hour}:${min}:${j * 3}`;
-        let timestamp = Date.parse(ts);
-
-        let longitude = parseInt(logs[5 + 3 * j], 10) / 360000;
-        let latitude = parseInt(logs[6 + 3 * j], 10) / 360000;
-        // velocity.push(parseInt(logs[7 + 3 * j], 10));
-        let obj = null;
-        if (j < 3) {
-          obj = { id: logs[1], timestamp, date: `${date}${hour}${min}0${j * 3}`, latitude, longitude };
-        } else {
-          obj = { id: logs[1], timestamp, date: `${date}${hour}${min}${j * 3}`, latitude, longitude };
-        }
-        result.push(obj);
-
-      }
-
-      // if (i === 1000) {
-      //   break;
-      // }
 
     }
-    console.log('complete');
-    result.sort(function (a, b) {
-      return a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0;
-    })
+
+  }
+  return result;
+
+}
+
+let ss1 = exportfile(file1, 1);
+let ss2 = exportfile(file2, 0);
+// ss1.concat(ss2);
+// console.log(ss2);
+ss1 = ss1.concat(ss2);
+console.log(ss1.length);
 
 
-    let c = 0;
-    let fileNum = 0;
-    let buffer = '';
-    let midtime1 = new Date().getTime();
-    for (let i = 0; i < result.length; i++) {
-      let str = `${result[i].timestamp}\t${result[i].date}\t${result[i].id}\t${result[i].latitude}\t${result[i].longitude}`;
-      if (i % 50000 === 0) {
-        fs.appendFileSync(`${outFolder}/${file}_sorted.txt`, buffer);
-        buffer = '';
-      }
-      buffer += str + '\n';
+// ss1.sort(function (a, b) {
+//   return a.timestamp < b.timestamp ? -1 : a.timestamp > b.timestamp ? 1 : 0;
+// })
+let buffer = `timestamp\tvehicle_id\tlongitude\tlatitude\tspeed\ttype\n`;
 
-    }
-    let midtime2 = new Date().getTime();
-    console.log(`${file} - 파일 쓰기 시간 : ${midtime2 - midtime1}`);
+for (let i = 0; i < ss1.length; i++) {
 
-    var endTime = new Date().getTime();
-    console.log(`${file} - 총 수행시간 : ${endTime - startTime}`);
+  let str = `${ss1[i].timestamp}\t${ss1[i].vehicle_id}\t${ss1[i].longitude}\t${ss1[i].latitude}\t${ss1[i].speed}\t${ss1[i].type}`;
+  buffer += str + '\n';
 
-  })
-})
+}
+fs.appendFileSync(`./${filename}.csv`, buffer);
+
+
+
+//   let c = 0;
+//   let fileNum = 0;
+//   let buffer = '';
+//   let midtime1 = new Date().getTime();
+//   for (let i = 0; i < result.length; i++) {
+//     let str = `${result[i].timestamp}\t${result[i].date}\t${result[i].id}\t${result[i].latitude}\t${result[i].longitude}`;
+//     if (i % 50000 === 0) {
+//       fs.appendFileSync(`${outFolder}/${file}_sorted.txt`, buffer);
+//       buffer = '';
+//     }
+//     buffer += str + '\n';
+
+//   }
+//   let midtime2 = new Date().getTime();
+//   console.log(`${file} - 파일 쓰기 시간 : ${midtime2 - midtime1}`);
+
+//   var endTime = new Date().getTime();
+//   console.log(`${file} - 총 수행시간 : ${endTime - startTime}`);
+
+// }
